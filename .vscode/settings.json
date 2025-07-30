@@ -1,0 +1,6 @@
+{
+    "files.associations": {
+        "webservices.h": "c",
+        "esp8266webserver.h": "c"
+    }
+}
