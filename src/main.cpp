@@ -18,9 +18,13 @@ void setup() {
   wifi_setup();
   web_server_setup();
   setupOTA();
+
+  // Time
+  time_config();
 }
 
 void loop() {
   server.handleClient();
   ArduinoOTA.handle();
+  get_time();
 }

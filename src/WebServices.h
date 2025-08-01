@@ -2,6 +2,7 @@
 #include <ESP8266WebServer.h>
 #include <ArduinoOTA.h>
 
+#include "TimeFromNTP.h"
 #include "Relays.h"
 
 extern ESP8266WebServer server;

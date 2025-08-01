@@ -22,13 +22,22 @@ void handleRoot() {
     "h1{font-size:20px} .card{border:1px solid #ddd;border-radius:8px;padding:12px;margin-bottom:12px}"
     "b{display:inline-block;min-width:160px} button{padding:8px 12px;border-radius:6px;border:1px solid #888;background:#f2f2f2;cursor:pointer}"
     "form{display:inline} .row{display:flex;justify-content:space-between;align-items:center}</style>"
-    "</head><body><h1>Panel przekaźników (ESP8266)</h1>"
+    "</head><body><h1>Sterowanie Panelem przekaźników</h1>"
   );
 
+  // Dodanie zegara
+  html += "<div class='card'><div class='row'><div><b>Aktualny czas:</b> ";
+  char timeStr[6];
+  snprintf(timeStr, sizeof(timeStr), "%02d:%02d", hour, minute);
+  html += String(timeStr);
+  html += "</div></div></div>";
+
+  // Przekaźnik 1
   html += "<div class='card'><div class='row'><div><b>Przekaźnik 1 (GPIO0):</b> ";
   html += String(relay1State ? "WŁĄCZONY" : "WYŁĄCZONY");
   html += "</div><form action=\"/toggle\" method=\"POST\"><button type=\"submit\">Zmień</button></form></div></div>";
 
+  // Przekaźnik 2
   html += "<div class='card'><div class='row'><div><b>Przekaźnik 2 (GPIO2):</b> ";
   html += String(relay2State ? "WŁĄCZONY" : "WYŁĄCZONY");
   html += "</div><form action=\"/toggle2\" method=\"POST\"><button type=\"submit\">Zmień</button></form></div></div>";
