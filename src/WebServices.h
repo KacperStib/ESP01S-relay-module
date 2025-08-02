@@ -19,6 +19,7 @@ extern IPAddress secondaryDNS;
 void handleRoot();
 void handleToggle();
 void handleToggle2();
+void handleSetWateringTime();
 
 void wifi_setup();
 void web_server_setup();

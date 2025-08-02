@@ -25,22 +25,29 @@ void handleRoot() {
     "</head><body><h1>Sterowanie Panelem przekaźników</h1>"
   );
 
-  // Dodanie zegara
+  // Clock
   html += "<div class='card'><div class='row'><div><b>Aktualny czas:</b> ";
   char timeStr[6];
   snprintf(timeStr, sizeof(timeStr), "%02d:%02d", hour, minute);
   html += String(timeStr);
   html += "</div></div></div>";
 
-  // Przekaźnik 1
+  // Relay1
   html += "<div class='card'><div class='row'><div><b>Przekaźnik 1 (GPIO0):</b> ";
   html += String(relay1State ? "WŁĄCZONY" : "WYŁĄCZONY");
   html += "</div><form action=\"/toggle\" method=\"POST\"><button type=\"submit\">Zmień</button></form></div></div>";
 
-  // Przekaźnik 2
+  // Relay2
   html += "<div class='card'><div class='row'><div><b>Przekaźnik 2 (GPIO2):</b> ";
   html += String(relay2State ? "WŁĄCZONY" : "WYŁĄCZONY");
   html += "</div><form action=\"/toggle2\" method=\"POST\"><button type=\"submit\">Zmień</button></form></div></div>";
+
+  // Watering time
+  html += "<div class='card'><form action='/settime' method='POST'>";
+  html += "<div class='row'><div><b>Czas podlewania (minuty):</b> ";
+  html += String(wateringTime);
+  html += "</div><input type='number' name='time' min='1' max='3600' style='width:80px'> ";
+  html += "<button type='submit'>Ustaw</button></div></form></div>";
 
   html += "</body></html>";
 
@@ -61,6 +68,18 @@ void handleToggle2() {
   digitalWrite(relay2Pin, relay2State ? HIGH : LOW); 
   server.sendHeader("Location", "/");
   server.send(303);
+}
+
+// Set Watering Time
+void handleSetWateringTime() {
+  if (server.hasArg("time")) {
+    wateringTime = server.arg("time").toInt();
+    Serial.print("Ustawiono czas podlewania: ");
+    Serial.print(wateringTime);
+    Serial.println(" s");
+  }
+  server.sendHeader("Location", "/");
+  server.send(303); 
 }
 
 // WiFi conf
@@ -86,6 +105,7 @@ void web_server_setup(){
   server.on("/", HTTP_GET, handleRoot);
   server.on("/toggle", HTTP_POST, handleToggle);
   server.on("/toggle2", HTTP_POST, handleToggle2);
+  server.on("/settime", HTTP_POST, handleSetWateringTime);
 
   server.begin();
   Serial.println("Serwer wystartował.");
