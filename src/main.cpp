@@ -27,4 +27,6 @@ void loop() {
   server.handleClient();
   ArduinoOTA.handle();
   get_time();
+  watering_handler();
+  delay(10);
 }

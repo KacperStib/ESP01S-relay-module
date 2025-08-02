@@ -49,6 +49,21 @@ void handleRoot() {
   html += "</div><input type='number' name='time' min='1' max='3600' style='width:80px'> ";
   html += "<button type='submit'>Ustaw</button></div></form></div>";
 
+  // Watering start Hours
+  html += "<div class='card'><form action='/settimes' method='POST'>";
+  html += "<div class='row'><div><b>Podlewanie ranne:</b> ";
+  char timeMorning[6];
+  snprintf(timeMorning, sizeof(timeMorning), "%02d:%02d", startHour1, startMinute1);
+  html += "</div><input type='time' name='morning' value='" + String(timeMorning) + "'></div>";
+
+  html += "<div class='row'><div><b>Podlewanie wieczorne:</b> ";
+  char timeEvening[6];
+  snprintf(timeEvening, sizeof(timeEvening), "%02d:%02d", startHour2, startMinute2);
+  html += "</div><input type='time' name='evening' value='" + String(timeEvening) + "'></div>";
+
+  html += "<div class='row'><button type='submit'>Zapisz czasy podlewania</button></div>";
+  html += "</form></div>";
+
   html += "</body></html>";
 
   server.send(200, "text/html", html);
@@ -82,6 +97,33 @@ void handleSetWateringTime() {
   server.send(303); 
 }
 
+// Set watering hours
+void handleSetStartTimes() {
+  if (server.hasArg("morning")) {
+    String timeStr = server.arg("morning"); // "HH:MM"
+    int sep = timeStr.indexOf(':');
+    if (sep > 0) {
+      startHour1 = timeStr.substring(0, sep).toInt();
+      startMinute1 = timeStr.substring(sep + 1).toInt();
+    }
+  }
+
+  if (server.hasArg("evening")) {
+    String timeStr = server.arg("evening");
+    int sep = timeStr.indexOf(':');
+    if (sep > 0) {
+      startHour2 = timeStr.substring(0, sep).toInt();
+      startMinute2 = timeStr.substring(sep + 1).toInt();
+    }
+  }
+
+  Serial.printf("Ustawiono czas ranny: %02d:%02d\n", startHour1, startMinute1);
+  Serial.printf("Ustawiono czas wieczorny: %02d:%02d\n", startHour2, startMinute2);
+
+  server.sendHeader("Location", "/");
+  server.send(303);
+}
+
 // WiFi conf
 void wifi_setup(){
  // Static IP conf
@@ -106,6 +148,7 @@ void web_server_setup(){
   server.on("/toggle", HTTP_POST, handleToggle);
   server.on("/toggle2", HTTP_POST, handleToggle2);
   server.on("/settime", HTTP_POST, handleSetWateringTime);
+  server.on("/settimes", HTTP_POST, handleSetStartTimes);
 
   server.begin();
   Serial.println("Serwer wystartował.");

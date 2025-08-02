@@ -1,4 +1,5 @@
 #include <Arduino.h>
+#include "TimeFromNTP.h"
 
 // Steps
 #define IDLE 0
@@ -22,8 +23,10 @@ extern uint64_t wateringMillis;
 
 // Schedule
 extern uint8_t wateringTime; // minutes
-extern uint8_t startHour;
-extern uint8_t endHour;
+extern uint8_t startHour1;
+extern uint8_t startMinute1;
+extern uint8_t startHour2;
+extern uint8_t startMinute2;
 
 void watering_handler();
 void start_watering();
