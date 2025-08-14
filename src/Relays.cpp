@@ -10,6 +10,12 @@ uint8_t startMinute1 = 0;
 uint8_t startHour2 = 21;
 uint8_t startMinute2 = 0;
 
+bool waterPoolWatering = false;
+uint8_t waterPoolWateringState = IDLE;
+uint64_t waterPoolWateringMillis = 0;
+uint16_t waterPoolCounter = 0;
+
+// Normal watering
 void watering_handler(){
     switch(wateringState){
         case IDLE:
@@ -61,6 +67,38 @@ void watering_handler(){
     }
 }
 
-void start_watering(){
-    wateringState = START_WATERING_REL1;
+// Hot water flow to waterpool
+void waterpool_handler(){
+    switch(waterPoolWateringState){
+        case IDLE:
+            if (waterPoolWatering)
+                waterPoolWateringState = START_WATERING_REL1;
+            break;
+        
+        case START_WATERING_REL1:
+            digitalWrite(relay1Pin, LOW);
+            digitalWrite(relay2Pin, LOW);
+
+            waterPoolWateringMillis = millis();
+            digitalWrite(relay1Pin, HIGH);
+            relay1State = true;
+            waterPoolWateringState = WATERING_REL1;
+            break;
+        
+        case WATERING_REL1:
+            if (millis() - waterPoolWateringMillis >= 20 * 1000){
+                waterPoolWateringState = STOP_WATERING_REL1;
+                waterPoolWateringMillis= millis();
+            }
+            break;
+
+        case STOP_WATERING_REL1:
+            digitalWrite(relay1Pin, LOW);
+            relay1State = false;
+            if (millis() - waterPoolWateringMillis >= 15 * 1000 * 60){
+                waterPoolWateringState = IDLE;
+                waterPoolCounter ++;
+            }
+            break;
+    }
 }

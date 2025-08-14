@@ -28,5 +28,11 @@ extern uint8_t startMinute1;
 extern uint8_t startHour2;
 extern uint8_t startMinute2;
 
+// Waterpool
+extern bool waterPoolWatering;
+extern uint8_t waterPoolWateringState;
+extern uint64_t waterPoolWateringMillis;
+extern uint16_t waterPoolCounter;
+
 void watering_handler();
-void start_watering();
+void waterpool_handler();

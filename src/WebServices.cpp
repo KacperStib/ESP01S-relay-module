@@ -13,6 +13,8 @@ IPAddress subnet(255, 255, 255, 0);
 IPAddress primaryDNS(192, 168, 0, 1);     
 IPAddress secondaryDNS(8, 8, 4, 4);       
 
+uint64_t lastCheck = 0;
+
 // String + root
 void handleRoot() {
   String html = F(
@@ -64,6 +66,14 @@ void handleRoot() {
   html += "<div class='row'><button type='submit'>Zapisz czasy podlewania</button></div>";
   html += "</form></div>";
 
+  // Waterpool
+  html += "<div class='card'><form action='/togglePool' method='POST'>";
+  html += "<div class='row'><div><b>Basen:</b> ";
+  html += "<input type='checkbox' name='pool' value='1' onchange='this.form.submit()' ";
+  if (waterPoolWatering) html += "checked";
+  html += ">";
+  html += "Liczba cykli: " + String(waterPoolCounter);
+  html += "</div></div></form></div>";
   html += "</body></html>";
 
   server.send(200, "text/html", html);
@@ -124,6 +134,16 @@ void handleSetStartTimes() {
   server.send(303);
 }
 
+// Waterpool watering - hot water in garden hose
+void handleTogglePool() {
+  waterPoolWatering = server.hasArg("pool"); 
+  Serial.print("Basen: ");
+  Serial.println(waterPoolWatering ? "Włączony" : "Wyłączony");
+
+  server.sendHeader("Location", "/");
+  server.send(303);
+}
+
 // WiFi conf
 void wifi_setup(){
  // Static IP conf
@@ -140,6 +160,9 @@ void wifi_setup(){
   Serial.println("\nPołączono z WiFi!");
   Serial.print("IP: ");
   Serial.println(WiFi.localIP());
+  // Wifi auto reconnect
+  WiFi.setAutoReconnect(true);
+  WiFi.persistent(true);
 }
 
 // Webserver conf
@@ -149,7 +172,8 @@ void web_server_setup(){
   server.on("/toggle2", HTTP_POST, handleToggle2);
   server.on("/settime", HTTP_POST, handleSetWateringTime);
   server.on("/settimes", HTTP_POST, handleSetStartTimes);
-
+  server.on("/togglePool", HTTP_POST, handleTogglePool);
+  
   server.begin();
   Serial.println("Serwer wystartował.");
 }
@@ -180,4 +204,19 @@ void setupOTA() {
 
   ArduinoOTA.begin();
   Serial.println("OTA gotowe, czekam na aktualizacje...");
+}
+
+// Backup for auto reconnect
+void check_connection(){
+  if (millis() - lastCheck > 30000) {
+    lastCheck = millis();
+    if (WiFi.status() != WL_CONNECTED) {
+      Serial.println("WiFi rozlaczone, probuje ponownie...");
+      WiFi.disconnect(); 
+      WiFi.begin(ssid, password); 
+    } else {
+      Serial.print(" Polaczono, IP: ");
+      Serial.println(WiFi.localIP());
+    }
+  }
 }

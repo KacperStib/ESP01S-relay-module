@@ -26,7 +26,9 @@ void setup() {
 void loop() {
   server.handleClient();
   ArduinoOTA.handle();
+  check_connection();
   get_time();
   watering_handler();
+  waterpool_handler();
   delay(10);
 }

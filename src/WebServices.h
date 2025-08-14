@@ -16,6 +16,8 @@ extern IPAddress subnet;
 extern IPAddress primaryDNS;     
 extern IPAddress secondaryDNS; 
 
+extern uint64_t lastCheck;
+
 void handleRoot();
 void handleToggle();
 void handleToggle2();
@@ -25,3 +27,5 @@ void wifi_setup();
 void web_server_setup();
 
 void setupOTA();
+
+void check_connection();
